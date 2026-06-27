@@ -194,6 +194,16 @@
   var FALLBACK_LANG = 'en';
   var STORAGE_KEY = 'oppetnu_lang';
 
+  // Visas alltid pa sitt eget sprak i sprakvaljaren, oavsett vilket UI-sprak som ar aktivt -
+  // det ar konventionen overallt (en svensk ser "English", inte "Engelska", i listan).
+  var LANGUAGE_NAMES = {
+    sv: 'Svenska',
+    en: 'English',
+    de: 'Deutsch',
+    fr: 'Français',
+    es: 'Español'
+  };
+
   function detectLanguage() {
     var stored = null;
     try {
@@ -247,6 +257,7 @@
 
   root.App.I18N = I18N;
   root.App.SUPPORTED_LANGUAGES = SUPPORTED_LANGUAGES;
+  root.App.LANGUAGE_NAMES = LANGUAGE_NAMES;
   root.App.FALLBACK_LANG = FALLBACK_LANG;
   root.App.currentLang = detectLanguage();
   root.App.setLanguage = setLanguage;
