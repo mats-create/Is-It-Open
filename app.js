@@ -120,6 +120,25 @@
     });
   }
 
+  function renderLangSelect() {
+    if (els.langSelect.options.length === 0) {
+      App.SUPPORTED_LANGUAGES.forEach(function (lang) {
+        var opt = document.createElement('option');
+        opt.value = lang;
+        opt.textContent = App.LANGUAGE_NAMES[lang] || lang;
+        els.langSelect.appendChild(opt);
+      });
+    }
+    els.langSelect.value = App.currentLang;
+  }
+
+  function renderAll() {
+    renderChips();
+    renderHeader();
+    renderLangSelect();
+    renderList();
+  }
+
   function renderHeader() {
     els.locationIcon.innerHTML = App.getIcon('location-pin');
     els.refreshIcon.innerHTML = App.getIcon('refresh');
@@ -327,6 +346,7 @@
 
     els.locationIcon = document.getElementById('locationIcon');
     els.locationText = document.getElementById('locationText');
+    els.langSelect = document.getElementById('langSelect');
     els.refreshBtn = document.getElementById('refreshBtn');
     els.refreshIcon = document.getElementById('refreshIcon');
     els.chipRow = document.getElementById('chipRow');
@@ -339,12 +359,18 @@
 
     renderChips();
     renderHeader();
+    renderLangSelect();
     renderToggle();
 
     els.refreshBtn.addEventListener('click', requestLocation);
     els.toggleBtn.addEventListener('click', function () {
       state.showClosed = !state.showClosed;
       renderList();
+    });
+    els.langSelect.addEventListener('change', function () {
+      App.setLanguage(els.langSelect.value);
+      document.documentElement.lang = App.currentLang;
+      renderAll();
     });
 
     requestLocation();

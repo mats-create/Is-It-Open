@@ -72,8 +72,18 @@ a {
   white-space: nowrap;
 }
 
-.icon-button {
+.lang-select {
   margin-left: auto;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #d3d1c7;
+  background: #fff;
+  border-radius: 999px;
+  padding: 5px 8px;
+  color: #2c2c2a;
+}
+
+.icon-button {
   width: 34px;
   height: 34px;
   padding: 0;
