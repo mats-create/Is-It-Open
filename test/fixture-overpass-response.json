@@ -1,0 +1,40 @@
+{
+  "version": 0.6,
+  "generator": "handwritten test fixture - NOT a real Overpass response",
+  "elements": [
+    {
+      "type": "node",
+      "id": 1001,
+      "lat": 39.5696,
+      "lon": 2.6502,
+      "tags": { "amenity": "pharmacy", "name": "Farmacia Test Centre", "opening_hours": "Mo-Fr 09:00-20:00; Sa 09:00-14:00" }
+    },
+    {
+      "type": "way",
+      "id": 2002,
+      "center": { "lat": 39.5710, "lon": 2.6489 },
+      "tags": { "amenity": "hospital", "name": "Hospital Test", "emergency": "yes" }
+    },
+    {
+      "type": "node",
+      "id": 3003,
+      "lat": 39.5701,
+      "lon": 2.6520,
+      "tags": { "office": "government", "name": "Ajuntament Test" }
+    },
+    {
+      "type": "node",
+      "id": 4004,
+      "lat": 39.5688,
+      "lon": 2.6477,
+      "tags": { "amenity": "recycling", "recycling_type": "centre", "name": "Punt Verd Test", "opening_hours": "Mo-Sa 08:00-20:00" }
+    },
+    {
+      "type": "node",
+      "id": 5005,
+      "lat": 39.5650,
+      "lon": 2.6600,
+      "tags": { "amenity": "recycling", "recycling_type": "container", "name": "Glascontainer (ska INTE matcha atervinning-kategorin)" }
+    }
+  ]
+}
