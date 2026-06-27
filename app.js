@@ -179,7 +179,7 @@
       if (btn) {
         btn.addEventListener('click', function () {
           window.open(
-            'https://www.google.com/maps/dir/?api=1&destination=' + p.lat + ',' + p.lon,
+            'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(destinationParam(p)),
             '_blank',
             'noopener'
           );
@@ -190,8 +190,21 @@
     renderToggle();
   }
 
+  function destinationParam(p) {
+    // Exakt nod -> koordinaten gar att lita pa. Annars (way/relation-centroid, kan hamna fel
+    // for stora omraden som ett sjukhus) -> latt Google soka pa namn+adress istallet, om vi
+    // har nagot att soka pa. Se HANDOVER.md "Vagvisningens tillforlitlighet".
+    if (p.precise || !p.name) {
+      return p.lat + ',' + p.lon;
+    }
+    var parts = [p.name];
+    var address = formatAddress(p.tags);
+    if (address) parts.push(address);
+    parts.push('Mallorca');
+    return parts.join(', ');
+  }
+
   function placeCardHtml(p) {
-    var style = App.CATEGORY_STYLE[p.category] || {};
     var statusKey = p.status.status;
     var hidden = isHiddenByDefault(statusKey);
     var name = p.name || App.t('categories.' + p.category);
@@ -215,14 +228,7 @@
     return (
       '<div class="place-card' +
       (hidden ? ' is-closed' : '') +
-      '" style="--tint:' +
-      style.tint +
-      ';--deep:' +
-      style.deep +
-      ';">' +
-      '<div class="place-swatch"><span class="icon" aria-hidden="true">' +
-      App.getIcon(p.category) +
-      '</span></div>' +
+      '">' +
       '<div class="place-body">' +
       '<span class="status-badge ' +
       statusKey +
@@ -355,6 +361,7 @@
     distanceMeters: distanceMeters,
     formatDistance: formatDistance,
     formatAddress: formatAddress,
+    destinationParam: destinationParam,
     statusRank: statusRank,
     isHiddenByDefault: isHiddenByDefault,
     state: state

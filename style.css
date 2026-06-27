@@ -204,6 +204,9 @@ a {
   opacity: 0.5;
 }
 
+/* place-swatch används INTE i v1-listan längre (togs bort 2026-06-22 - kategorin är redan
+   tydlig via den valda chippen, en ikon per kort blev repetitivt). Sparas för en framtida vy
+   med blandade kategorier (favoriter/sök, Spår B) där ikonen faktiskt tillför information. */
 .place-swatch {
   width: 36px;
   height: 36px;
