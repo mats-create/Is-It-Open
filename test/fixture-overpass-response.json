@@ -5,9 +5,9 @@
     {
       "type": "node",
       "id": 1001,
-      "lat": 39.5696,
-      "lon": 2.6502,
-      "tags": { "amenity": "pharmacy", "name": "Farmàcia Test Centre", "opening_hours": "Mo-Fr 09:00-20:00; Sa 09:00-14:00" }
+      "lat": 39.5710,
+      "lon": 2.6520,
+      "tags": { "amenity": "pharmacy", "name": "Farmàcia Test Centre", "opening_hours": "Mo-Fr 09:00-20:00; Sa 09:00-14:00", "addr:street": "Carrer Major", "addr:housenumber": "8" }
     },
     {
       "type": "way",

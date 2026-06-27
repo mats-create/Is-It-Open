@@ -28,6 +28,30 @@ var document = window.document;
 
 var fixture = JSON.parse(readFile('test/fixture-overpass-response.json'));
 
+// app.js anropar App.getPlaceStatus() utan ett explicit "now" - det defaultar da till verklig
+// klocktid. Utan detta lass beror testernas resultat pa NAR de rakar koras (upptackt for
+// verkligt 2026-06-27: apotekets lordagstid 09-14 hade redan passerat). Lasningen sker per
+// jsdom-window, INNAN nagot app-skript koras, sa "new Date()" inuti app.js/openingHours.js
+// alltid ger samma deterministiska tidpunkt - en onsdag mitt pa dagen, gott om marginal till
+// bade oppning och stangning.
+function installFixedNow(win, isoString) {
+  var fixedMs = new win.Date(isoString).getTime();
+  var NativeDate = win.Date;
+  win.Date = class extends NativeDate {
+    constructor(...args) {
+      if (args.length === 0) {
+        super(fixedMs);
+      } else {
+        super(...args);
+      }
+    }
+    static now() {
+      return fixedMs;
+    }
+  };
+}
+installFixedNow(window, '2026-06-24T12:00:00+02:00');
+
 window.navigator.geolocation = {
   getCurrentPosition: function (success) {
     success({ coords: { latitude: 39.5696, longitude: 2.6502 } }); // nära Palma, matchar fixturen
@@ -98,8 +122,26 @@ flush(function () {
 
     var card = cards[0];
     assert('kortet visar platsnamnet fran fixturen', card.querySelector('.place-name').textContent === 'Farmàcia Test Centre');
-    assert('kortet har en statusbricka med text (inte tom)', card.querySelector('.status-badge').textContent.length > 0);
+    assert(
+      'oppet-status visas som en liten prick, INTE en upprepad textbricka (fix for repetitionsproblemet)',
+      card.querySelector('.status-dot') !== null && card.querySelector('.status-badge') === null
+    );
     assert('kortet har en vägvisningsknapp (status ar synlig, inte gomd)', card.querySelector('.place-directions-btn') !== null);
+
+    var expectedDist = window.App._internal.formatDistance(
+      window.App._internal.distanceMeters(39.5696, 2.6502, 39.571, 2.652)
+    );
+    assert(
+      'metaraden visar AVSTAND FORE adress (bugfix - en lang adress fick tidigare ata upp avstandet via text-overflow:ellipsis)',
+      card.querySelector('.place-meta').textContent === expectedDist + ' · Carrer Major 8'
+    );
+
+    assert(
+      'listrubriken ovanfor korten visar vald kategori (Apotek), kopplar kategori till listan',
+      document.getElementById('listCategory').textContent.indexOf(window.App.t('categories.apotek')) !== -1
+    );
+
+    assert('chip-radens scroll-antydan (fade) finns i DOM:en', document.getElementById('chipRowFade') !== null);
 
     // Byt till kommunhus - finns i fixturen men UTAN opening_hours -> ska bli "unknown",
     // vilket per vart antagande ska doljas av standard-filtret (grupperat med stangt).
@@ -174,6 +216,7 @@ function runGeolocationDeniedScenario() {
   });
   var window2 = dom2.window;
   var document2 = window2.document;
+  installFixedNow(window2, '2026-06-24T12:00:00+02:00');
 
   window2.navigator.geolocation = {
     getCurrentPosition: function (success, error) {
@@ -243,6 +286,31 @@ function runGeolocationDeniedScenario() {
         'way/relation UTAN namn -> faller tillbaka pa koordinater (inget battre att soka pa)',
         dest({ precise: false, lat: 39.57, lon: 2.65, name: null, tags: {} }) === '39.57,2.65'
       );
+
+      console.log();
+      console.log('--- Enhetstest: placeCardHtml (statusvisning, oberoende av riktig klocktid) ---');
+      var cardHtml = window2.App._internal.placeCardHtml;
+      var basePlace = { id: 'node/1', name: 'Test Plats', lat: 1, lon: 1, tags: {}, distance: 120 };
+
+      var openHtml = cardHtml(Object.assign({}, basePlace, { status: { status: 'open', minutesLeft: null } }));
+      assert('oppet-kort: har status-dot', openHtml.indexOf('status-dot') !== -1);
+      assert('oppet-kort: INGEN status-badge (de-emphasized, se HANDOVER)', openHtml.indexOf('status-badge') === -1);
+
+      var soonHtml = cardHtml(Object.assign({}, basePlace, { status: { status: 'soon', minutesLeft: 12 } }));
+      assert(
+        'stanger-snart-kort: visar faktisk tid kvar ("Stanger om 12 min"), inte bara generisk text',
+        soonHtml.indexOf(window2.App.t('ui.closingInMinutes').replace('{min}', 12)) !== -1
+      );
+      assert('stanger-snart-kort: har status-badge (undantag, ska vara tydligt)', soonHtml.indexOf('status-badge soon') !== -1);
+
+      var soonNoMinutesHtml = cardHtml(Object.assign({}, basePlace, { status: { status: 'soon', minutesLeft: null } }));
+      assert(
+        'stanger-snart UTAN kand minutangivelse faller tillbaka pa generisk "Stanger snart"-text',
+        soonNoMinutesHtml.indexOf(window2.App.t('status.soon')) !== -1
+      );
+
+      var closedHtml = cardHtml(Object.assign({}, basePlace, { status: { status: 'closed', minutesLeft: null } }));
+      assert('stangt-kort: har fortfarande en tydlig status-badge (undantagsfallet, inte nedtonat)', closedHtml.indexOf('status-badge closed') !== -1);
 
       console.log();
       console.log('--- Verifiering: ingen repetitiv ikon kvar per kort ---');
