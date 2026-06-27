@@ -239,8 +239,8 @@ function runGeolocationDeniedScenario() {
   setTimeout(function () {
     assert('nekad geolocation kraschar INTE appen - chips renderas fortfarande', document2.querySelectorAll('#chipRow .chip').length === 12);
     assert(
-      'platstexten visar Mallorca-fallback, inte "nara dig", nar geolocation nekas',
-      document2.getElementById('locationText').textContent === window2.App.t('ui.locationFallback')
+      'PERMISSION_DENIED (code 1) ger en specifik, atgardbar text - INTE samma generiska Mallorca-fallback som ovriga fel',
+      document2.getElementById('locationText').textContent === window2.App.t('ui.locationDenied')
     );
     assert('fetch anropas anda (fallback-bbox anvands istallet for att ge upp)', fetchCallCount2 >= 1);
 
@@ -315,6 +315,47 @@ function runGeolocationDeniedScenario() {
       console.log();
       console.log('--- Verifiering: ingen repetitiv ikon kvar per kort ---');
       assert('inga .place-swatch-element kvar i nagot kort (togs bort 2026-06-22)', document2.querySelectorAll('.place-swatch').length === 0);
+
+      runOtherGeolocationErrorScenario();
     }, 0);
+  }, 0);
+}
+
+// --- Scenario 3: POSITION_UNAVAILABLE/TIMEOUT (code 2/3) - ska INTE visa den
+// behorighets-specifika texten, bara den generiska Mallorca-fallbacken, eftersom anvandaren
+// inte kan atgarda dessa fel via installningarna. ---
+function runOtherGeolocationErrorScenario() {
+  console.log();
+  console.log('--- Scenario: geolocation otillganglig (code 2, inte nekad behorighet) ---');
+
+  var dom3 = new JSDOM('<!DOCTYPE html><html><head></head><body>' + bodyHtml + '</body></html>', {
+    url: 'https://example.org/',
+    runScripts: 'outside-only'
+  });
+  var window3 = dom3.window;
+  var document3 = window3.document;
+  installFixedNow(window3, '2026-06-24T12:00:00+02:00');
+
+  window3.navigator.geolocation = {
+    getCurrentPosition: function (success, error) {
+      error({ code: 2, message: 'Position unavailable' });
+    }
+  };
+  window3.fetch = function () {
+    return Promise.resolve({ ok: true, json: function () { return Promise.resolve(fixture); } });
+  };
+
+  ['lib/vendor/opening_hours.min.js', 'data/categories.js', 'data/i18n.js', 'api/overpassClient.js', 'lib/openingHours.js', 'lib/icons.js', 'app.js'].forEach(
+    function (rel) {
+      window3.eval(readFile(rel));
+    }
+  );
+  document3.dispatchEvent(new window3.Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
+
+  setTimeout(function () {
+    assert(
+      'code 2 (POSITION_UNAVAILABLE) visar den GENERISKA Mallorca-fallbacken, inte behorighets-texten (anvandaren kan inte atgarda detta i installningarna)',
+      document3.getElementById('locationText').textContent === window3.App.t('ui.locationFallback')
+    );
   }, 0);
 }
