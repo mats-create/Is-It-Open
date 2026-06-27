@@ -23,6 +23,7 @@
     currentCategory: App.CATEGORIES[0].id,
     showClosed: false,
     userCoords: null, // { lat, lon } eller null om geolocation inte gav nagot
+    locationErrorCode: null, // null | 1 (PERMISSION_DENIED) | 2 (UNAVAILABLE) | 3 (TIMEOUT)
     places: [] // senast hamtade+klassificerade platser for currentCategory
   };
 
@@ -165,7 +166,13 @@
   function renderHeader() {
     els.locationIcon.innerHTML = App.getIcon('location-pin');
     els.refreshIcon.innerHTML = App.getIcon('refresh');
-    els.locationText.textContent = state.userCoords ? App.t('ui.nearYou') : App.t('ui.locationFallback');
+    if (state.userCoords) {
+      els.locationText.textContent = App.t('ui.nearYou');
+    } else if (state.locationErrorCode === 1) {
+      els.locationText.textContent = App.t('ui.locationDenied');
+    } else {
+      els.locationText.textContent = App.t('ui.locationFallback');
+    }
     els.refreshBtn.setAttribute('aria-label', App.t('ui.updateLocation'));
   }
 
@@ -358,6 +365,7 @@
 
   function requestLocation() {
     if (!('geolocation' in navigator)) {
+      state.locationErrorCode = null;
       renderHeader();
       loadPlaces();
       return;
@@ -366,13 +374,22 @@
     navigator.geolocation.getCurrentPosition(
       function (pos) {
         state.userCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        state.locationErrorCode = null;
         els.refreshBtn.classList.remove('spinning');
         renderHeader();
         loadPlaces();
       },
-      function () {
-        // Nekad/otillganglig/timeout - alla fall hanteras lika i v1, se HANDOVER.md
+      function (err) {
+        // Loggas for framtida felsokning - kan inte se konsolen pa en riktig telefon, men
+        // kostar inget och hjalper om nagon nansin tittar (t.ex. via skarmdump av devtools).
+        if (typeof console !== 'undefined' && console.warn) {
+          console.warn('Geolocation-fel:', err && err.code, err && err.message);
+        }
         state.userCoords = null;
+        // code 1 = PERMISSION_DENIED - den enda av de tre felen anvandaren faktiskt kan
+        // atgarda sjalv (installningar). 2 = POSITION_UNAVAILABLE, 3 = TIMEOUT, hanteras
+        // fortfarande lika eftersom de inte ar nagot anvandaren kan gora at direkt.
+        state.locationErrorCode = err ? err.code : null;
         els.refreshBtn.classList.remove('spinning');
         renderHeader();
         loadPlaces();
