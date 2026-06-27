@@ -114,10 +114,32 @@
         if (state.currentCategory === cat.id) return;
         state.currentCategory = cat.id;
         renderChips();
+        renderListCategory();
         loadPlaces();
       });
       els.chipRow.appendChild(btn);
     });
+    updateChipFade();
+  }
+
+  function renderListCategory() {
+    var style = App.CATEGORY_STYLE[state.currentCategory] || {};
+    els.listCategory.style.setProperty('--tint', style.tint);
+    els.listCategory.style.setProperty('--deep', style.deep);
+    els.listCategory.innerHTML =
+      '<span class="icon" aria-hidden="true">' +
+      App.getIcon(state.currentCategory) +
+      '</span><span>' +
+      App.t('categories.' + state.currentCategory) +
+      '</span>';
+  }
+
+  // Visar/dolar gradient-antydan i kategori-radens hogerkant beroende pa om det finns mer
+  // att scrolla till - inte bara en statisk dekoration, se HANDOVER.md "Kategori-rad".
+  function updateChipFade() {
+    var el = els.chipRow;
+    var atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+    els.chipRowFade.style.opacity = atEnd ? '0' : '1';
   }
 
   function renderLangSelect() {
@@ -136,6 +158,7 @@
     renderChips();
     renderHeader();
     renderLangSelect();
+    renderListCategory();
     renderList();
   }
 
@@ -227,10 +250,39 @@
     var statusKey = p.status.status;
     var hidden = isHiddenByDefault(statusKey);
     var name = p.name || App.t('categories.' + p.category);
+
+    // Avstånd FÖRST i metaraden - en lång adress får trunkeras av "...", aldrig avståndet.
+    // (Detta var en riktig bugg tidigare: adress+avstånd i den ordningen kunde klippa bort
+    // avståndet helt på rader med text-overflow:ellipsis. Se HANDOVER.md.)
     var metaParts = [];
+    if (p.distance != null) metaParts.push(formatDistance(p.distance));
     var address = formatAddress(p.tags);
     if (address) metaParts.push(address);
-    if (p.distance != null) metaParts.push(formatDistance(p.distance));
+
+    var topHtml;
+    if (statusKey === 'open') {
+      // Öppet är redan standardantagandet i vyn (stängt/okänt är dolda) - en upprepad
+      // textetikett på varje kort tillför inget. En liten prick räcker.
+      topHtml =
+        '<div class="place-name-row"><span class="status-dot" aria-hidden="true"></span>' +
+        '<p class="place-name">' +
+        escapeHtml(name) +
+        '</p></div>';
+    } else {
+      var badgeText =
+        statusKey === 'soon' && p.status.minutesLeft != null
+          ? App.t('ui.closingInMinutes').replace('{min}', p.status.minutesLeft)
+          : App.t('status.' + statusKey);
+      topHtml =
+        '<span class="status-badge ' +
+        statusKey +
+        '">' +
+        escapeHtml(badgeText) +
+        '</span>' +
+        '<p class="place-name with-badge">' +
+        escapeHtml(name) +
+        '</p>';
+    }
 
     var directionsBtn = '';
     if (!hidden) {
@@ -249,14 +301,7 @@
       (hidden ? ' is-closed' : '') +
       '">' +
       '<div class="place-body">' +
-      '<span class="status-badge ' +
-      statusKey +
-      '">' +
-      escapeHtml(App.t('status.' + statusKey)) +
-      '</span>' +
-      '<p class="place-name">' +
-      escapeHtml(name) +
-      '</p>' +
+      topHtml +
       '<p class="place-meta">' +
       escapeHtml(metaParts.join(' · ')) +
       '</p>' +
@@ -350,6 +395,8 @@
     els.refreshBtn = document.getElementById('refreshBtn');
     els.refreshIcon = document.getElementById('refreshIcon');
     els.chipRow = document.getElementById('chipRow');
+    els.chipRowFade = document.getElementById('chipRowFade');
+    els.listCategory = document.getElementById('listCategory');
     els.toggleBtn = document.getElementById('toggleClosedBtn');
     els.toggleIcon = document.getElementById('toggleIcon');
     els.toggleLabel = document.getElementById('toggleLabel');
@@ -360,8 +407,10 @@
     renderChips();
     renderHeader();
     renderLangSelect();
+    renderListCategory();
     renderToggle();
 
+    els.chipRow.addEventListener('scroll', updateChipFade);
     els.refreshBtn.addEventListener('click', requestLocation);
     els.toggleBtn.addEventListener('click', function () {
       state.showClosed = !state.showClosed;
@@ -388,6 +437,7 @@
     formatDistance: formatDistance,
     formatAddress: formatAddress,
     destinationParam: destinationParam,
+    placeCardHtml: placeCardHtml,
     statusRank: statusRank,
     isHiddenByDefault: isHiddenByDefault,
     state: state

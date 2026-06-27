@@ -48,25 +48,44 @@ a {
   }
 }
 
-/* --- Header --- */
+/* --- Header: varumärke + plats --- */
 
-.header-row {
+.brand-row {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 6px;
+}
+
+.brand-mark {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.brand-name {
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin-bottom: 14px;
 }
 
-.header-row .icon {
-  width: 18px;
-  height: 18px;
-  color: #6b6a64;
+.location-row .icon {
+  width: 14px;
+  height: 14px;
+  color: #9a988f;
   flex-shrink: 0;
 }
 
 .location-text {
-  font-size: 13px;
-  color: #6b6a64;
+  font-size: 12px;
+  color: #9a988f;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -122,17 +141,32 @@ a {
 
 /* --- Kategori-chips --- */
 
+.chip-row-wrapper {
+  position: relative;
+  margin-bottom: 12px;
+}
+
 .chip-row {
   display: flex;
   gap: 8px;
   overflow-x: auto;
   padding-bottom: 6px;
-  margin-bottom: 10px;
   -webkit-overflow-scrolling: touch;
 }
 
 .chip-row::-webkit-scrollbar {
   display: none;
+}
+
+.chip-row-fade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 6px;
+  width: 32px;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0), #ffffff);
+  pointer-events: none;
+  transition: opacity 0.15s ease;
 }
 
 .chip {
@@ -164,12 +198,31 @@ a {
   transform: scale(0.97);
 }
 
-/* --- Global "visa/dölj stängda"-knapp --- */
+/* --- Listrubrik (vald kategori) + "visa/dölj stängda" --- */
 
-.toggle-row {
+.list-meta-row {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   margin-bottom: 14px;
+}
+
+.list-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--tint);
+  color: var(--deep);
+}
+
+.list-category .icon {
+  width: 15px;
+  height: 15px;
 }
 
 .toggle-closed-btn {
@@ -181,6 +234,7 @@ a {
   background: none;
   border: none;
   padding: 4px 2px;
+  flex-shrink: 0;
 }
 
 .toggle-closed-btn .icon {
@@ -264,19 +318,38 @@ a {
   background: #46546b;
 }
 
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b6d11;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.place-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .place-name {
   font-weight: 500;
   font-size: 15px;
-  margin: 6px 0 2px;
+  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.place-name.with-badge {
+  margin-top: 6px;
+}
+
 .place-meta {
   font-size: 13px;
   color: #6b6a64;
-  margin: 0;
+  margin: 4px 0 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

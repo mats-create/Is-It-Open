@@ -20,18 +20,26 @@
   </head>
   <body>
     <div class="app-shell">
-      <div class="header-row">
-        <span class="icon" id="locationIcon" aria-hidden="true"></span>
-        <span class="location-text" id="locationText"></span>
+      <div class="brand-row">
+        <img src="favicon.svg" alt="" class="brand-mark" aria-hidden="true" />
+        <span class="brand-name">IIO</span>
         <select class="lang-select" id="langSelect" aria-label="Language"></select>
         <button class="icon-button" id="refreshBtn" type="button">
           <span class="icon" id="refreshIcon" aria-hidden="true"></span>
         </button>
       </div>
+      <div class="location-row">
+        <span class="icon" id="locationIcon" aria-hidden="true"></span>
+        <span class="location-text" id="locationText"></span>
+      </div>
 
-      <div class="chip-row" id="chipRow"></div>
+      <div class="chip-row-wrapper">
+        <div class="chip-row" id="chipRow"></div>
+        <div class="chip-row-fade" id="chipRowFade" aria-hidden="true"></div>
+      </div>
 
-      <div class="toggle-row">
+      <div class="list-meta-row">
+        <span class="list-category" id="listCategory"></span>
         <button class="toggle-closed-btn" id="toggleClosedBtn" type="button" aria-pressed="false">
           <span class="icon" id="toggleIcon" aria-hidden="true"></span>
           <span id="toggleLabel"></span>
