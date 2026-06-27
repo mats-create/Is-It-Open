@@ -394,7 +394,7 @@
         renderHeader();
         loadPlaces();
       },
-      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+      { enableHighAccuracy: false, timeout: 20000, maximumAge: 60000 }
     );
   }
 
