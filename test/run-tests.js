@@ -41,7 +41,7 @@ var places = fixture.elements.map(sandbox.App.normalizeElement);
 var byName = {};
 places.forEach(function (p) { byName[p.name] = p; });
 
-assert('apotek klassificeras ratt', byName['Farmacia Test Centre'].category === 'apotek');
+assert('apotek klassificeras ratt', byName['Farmàcia Test Centre'].category === 'apotek');
 assert('sjukhus klassificeras ratt', byName['Hospital Test'].category === 'sjukhus');
 assert('kommunhus klassificeras ratt', byName['Ajuntament Test'].category === 'kommunhus');
 assert('atervinningscentral klassificeras ratt', byName['Punt Verd Test'].category === 'atervinning');
@@ -51,15 +51,15 @@ assert(
 );
 
 var fredagKvall = new Date('2026-06-19T19:45:00+02:00');
-var apotekKvallStatus = sandbox.App.getPlaceStatus(byName['Farmacia Test Centre'].tags, 'apotek', fredagKvall);
+var apotekKvallStatus = sandbox.App.getPlaceStatus(byName['Farmàcia Test Centre'].tags, 'apotek', fredagKvall);
 assert('apotek "stanger snart" fredag 19:45 (stanger 20:00, 15 min kvar, under 30-min-troskeln)', apotekKvallStatus.status === 'soon' && apotekKvallStatus.minutesLeft === 15);
 
 var fredagMitt = new Date('2026-06-19T12:00:00+02:00');
-var apotekMittStatus = sandbox.App.getPlaceStatus(byName['Farmacia Test Centre'].tags, 'apotek', fredagMitt);
+var apotekMittStatus = sandbox.App.getPlaceStatus(byName['Farmàcia Test Centre'].tags, 'apotek', fredagMitt);
 assert('apotek vanligt "oppet" fredag 12:00 (gott om tid till stangning, inte "snart")', apotekMittStatus.status === 'open');
 
 var lordagFm = new Date('2026-06-20T10:00:00+02:00');
-var apotekLordag = sandbox.App.getPlaceStatus(byName['Farmacia Test Centre'].tags, 'apotek', lordagFm);
+var apotekLordag = sandbox.App.getPlaceStatus(byName['Farmàcia Test Centre'].tags, 'apotek', lordagFm);
 assert('apotek oppet lordag 10:00 (Sa 09:00-14:00)', apotekLordag.status === 'open');
 
 var sjukhusStatus = sandbox.App.getPlaceStatus(byName['Hospital Test'].tags, 'sjukhus', lordagFm);
@@ -88,6 +88,13 @@ sandbox.App.SUPPORTED_LANGUAGES.forEach(function (lang) {
     return typeof v === 'string' && v.length > 0;
   });
   assert('alla 4 statusnycklar (open/soon/closed/unknown) finns pa "' + lang + '"', statusOk);
+
+  var uiKeysExpected = Object.keys(sandbox.App.I18N[sandbox.App.FALLBACK_LANG].ui);
+  var uiOk = uiKeysExpected.every(function (key) {
+    var v = sandbox.App.I18N[lang].ui[key];
+    return typeof v === 'string' && v.length > 0;
+  });
+  assert('alla ' + uiKeysExpected.length + ' ui-nycklar (fran fallback-spraket) finns pa "' + lang + '"', uiOk);
 });
 
 console.log();

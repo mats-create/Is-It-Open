@@ -7,7 +7,7 @@
       "id": 1001,
       "lat": 39.5696,
       "lon": 2.6502,
-      "tags": { "amenity": "pharmacy", "name": "Farmacia Test Centre", "opening_hours": "Mo-Fr 09:00-20:00; Sa 09:00-14:00" }
+      "tags": { "amenity": "pharmacy", "name": "Farmàcia Test Centre", "opening_hours": "Mo-Fr 09:00-20:00; Sa 09:00-14:00" }
     },
     {
       "type": "way",
