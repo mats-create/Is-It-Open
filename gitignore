@@ -1,0 +1,25 @@
+# Rev: 2026-06-22 — Initial .gitignore. Projektet har inget byggsteg och inga npm-beroenden
+# i produktion (se HANDOVER.md) — detta är "i fall man råkar" snarare än nödvändigt.
+
+# OS-skräp
+.DS_Store
+Thumbs.db
+
+# Editor-mappar
+.vscode/
+.idea/
+
+# Om man någon gång experimenterar lokalt med npm (t.ex. för att uppdatera den vendorade
+# opening_hours.js-filen) ska dessa aldrig commit:as
+node_modules/
+package-lock.json
+
+# Hemligheter — inga behövs idag (Overpass kräver ingen nyckel), men bra att ha innan någon
+# råkar lägga en .env-fil i repot av misstag
+.env
+.env.local
+
+# Loggar och tillfälliga filer
+*.log
+*.tmp
+*~
