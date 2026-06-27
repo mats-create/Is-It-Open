@@ -34,6 +34,11 @@ window.navigator.geolocation = {
   }
 };
 
+// Mockar enhetens sprak till svenska, for att deterministiskt aterskapa det riktiga scenariot
+// personen rapporterade ("visades pa svenska") - jsdom defaultar annars till "en-US".
+Object.defineProperty(window.navigator, 'language', { value: 'sv-SE', configurable: true });
+Object.defineProperty(window.navigator, 'languages', { value: ['sv-SE', 'sv'], configurable: true });
+
 var fetchCallCount = 0;
 window.fetch = function () {
   fetchCallCount += 1;
@@ -126,10 +131,32 @@ flush(function () {
         );
 
         console.log();
-        console.log('Klar. OBS: mockar fetch/geolocation - verifierar UI-logiken, inte riktig');
-        console.log('natverks-/GPS-atkomst (ej mojligt fran denna sandlada).');
+        console.log('--- Sprakvaljare ---');
+        var langSelect = document.getElementById('langSelect');
+        assert('sprakvaljaren har alla 5 sprak som alternativ', langSelect.options.length === 5);
+        assert('svenska ar valt vid start (auto-detect, ingen sprak-override mockad)', langSelect.value === 'sv');
 
-        runGeolocationDeniedScenario();
+        langSelect.value = 'de';
+        langSelect.dispatchEvent(new window.Event('change', { bubbles: true }));
+
+        flush(function () {
+          assert('html lang-attributet uppdaterat till "de"', document.documentElement.lang === 'de');
+          assert(
+            'kategori-chippen visar nu tysk text (Apotheke) efter sprakbyte',
+            document.querySelector('#chipRow .chip[data-cat="apotek"]').textContent.indexOf('Apotheke') !== -1
+          );
+          var cardAfterLangSwitch = document.querySelector('.place-card');
+          assert(
+            'redan synligt kort (kommunhus, okand status, visat via tidigare toggle) uppdateras till tysk text utan ny natverksbegaran',
+            cardAfterLangSwitch && cardAfterLangSwitch.querySelector('.status-badge').textContent === window.App.I18N.de.status.unknown
+          );
+
+          console.log();
+          console.log('Klar. OBS: mockar fetch/geolocation - verifierar UI-logiken, inte riktig');
+          console.log('natverks-/GPS-atkomst (ej mojligt fran denna sandlada).');
+
+          runGeolocationDeniedScenario();
+        });
       });
     });
   });
@@ -189,6 +216,37 @@ function runGeolocationDeniedScenario() {
       assert('formatDistance(450) -> "450 m" (avrundat till narmaste 10 m)', f(450) === '450 m');
       assert('formatDistance(1500) ger km med decimal', /1[.,]5\s?km/.test(f(1500)));
       assert('formatDistance(null) ger tom strang, inte "null"', f(null) === '');
+
+      console.log();
+      console.log('--- Enhetstest: destinationParam (vagvisningens tillforlitlighet) ---');
+      var dest = window2.App._internal.destinationParam;
+      assert(
+        'exakt nod (precise=true) -> raka koordinater, aven om namn finns',
+        dest({ precise: true, lat: 39.57, lon: 2.65, name: 'Test', tags: {} }) === '39.57,2.65'
+      );
+      assert(
+        'way/relation-centroid MED namn -> textsokning (namn + Mallorca), INTE koordinater - detta ar exakta buggen som hittades pa Son Espases',
+        dest({ precise: false, lat: 39.57, lon: 2.65, name: 'Hospital Universitari Son Espases', tags: {} }) ===
+          'Hospital Universitari Son Espases, Mallorca'
+      );
+      assert(
+        'way/relation MED namn OCH adress -> bade namn och adress i sokningen',
+        dest({
+          precise: false,
+          lat: 39.57,
+          lon: 2.65,
+          name: 'Hospital Test',
+          tags: { 'addr:street': 'Carrer Test', 'addr:housenumber': '1' }
+        }) === 'Hospital Test, Carrer Test 1, Mallorca'
+      );
+      assert(
+        'way/relation UTAN namn -> faller tillbaka pa koordinater (inget battre att soka pa)',
+        dest({ precise: false, lat: 39.57, lon: 2.65, name: null, tags: {} }) === '39.57,2.65'
+      );
+
+      console.log();
+      console.log('--- Verifiering: ingen repetitiv ikon kvar per kort ---');
+      assert('inga .place-swatch-element kvar i nagot kort (togs bort 2026-06-22)', document2.querySelectorAll('.place-swatch').length === 0);
     }, 0);
   }, 0);
 }
