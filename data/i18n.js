@@ -43,7 +43,13 @@
         updateLocation: 'Uppdatera plats',
         showClosed: 'Visa stängda',
         hideClosed: 'Dölj stängda',
-        directionsTo: 'Vägvisning till {name}'
+        directionsTo: 'Vägvisning till {name}',
+        nearYou: 'Nära dig',
+        locationFallback: 'Mallorca (hela ön)',
+        loadingPlaces: 'Söker platser…',
+        fetchError: 'Kunde inte hämta platser. Kontrollera internetanslutningen.',
+        retry: 'Försök igen',
+        noResults: 'Inga platser hittades i den här kategorin nära dig.'
       }
     },
     en: {
@@ -71,7 +77,13 @@
         updateLocation: 'Update location',
         showClosed: 'Show closed',
         hideClosed: 'Hide closed',
-        directionsTo: 'Directions to {name}'
+        directionsTo: 'Directions to {name}',
+        nearYou: 'Near you',
+        locationFallback: 'Mallorca (whole island)',
+        loadingPlaces: 'Finding places…',
+        fetchError: "Couldn't load places. Check your internet connection.",
+        retry: 'Try again',
+        noResults: 'No places found in this category near you.'
       }
     },
     de: {
@@ -99,7 +111,13 @@
         updateLocation: 'Standort aktualisieren',
         showClosed: 'Geschlossene anzeigen',
         hideClosed: 'Geschlossene ausblenden',
-        directionsTo: 'Wegbeschreibung zu {name}'
+        directionsTo: 'Wegbeschreibung zu {name}',
+        nearYou: 'In deiner Nähe',
+        locationFallback: 'Mallorca (ganze Insel)',
+        loadingPlaces: 'Orte werden gesucht…',
+        fetchError: 'Orte konnten nicht geladen werden. Internetverbindung prüfen.',
+        retry: 'Erneut versuchen',
+        noResults: 'Keine Orte in dieser Kategorie in deiner Nähe gefunden.'
       }
     },
     fr: {
@@ -127,7 +145,13 @@
         updateLocation: 'Actualiser la position',
         showClosed: 'Afficher les fermés',
         hideClosed: 'Masquer les fermés',
-        directionsTo: 'Itinéraire vers {name}'
+        directionsTo: 'Itinéraire vers {name}',
+        nearYou: 'Près de vous',
+        locationFallback: 'Majorque (île entière)',
+        loadingPlaces: 'Recherche des lieux…',
+        fetchError: 'Impossible de charger les lieux. Vérifiez votre connexion internet.',
+        retry: 'Réessayer',
+        noResults: 'Aucun lieu trouvé dans cette catégorie près de vous.'
       }
     },
     es: {
@@ -155,7 +179,13 @@
         updateLocation: 'Actualizar ubicación',
         showClosed: 'Mostrar cerrados',
         hideClosed: 'Ocultar cerrados',
-        directionsTo: 'Cómo llegar a {name}'
+        directionsTo: 'Cómo llegar a {name}',
+        nearYou: 'Cerca de ti',
+        locationFallback: 'Mallorca (toda la isla)',
+        loadingPlaces: 'Buscando lugares…',
+        fetchError: 'No se pudieron cargar los lugares. Comprueba tu conexión a internet.',
+        retry: 'Reintentar',
+        noResults: 'No se encontraron lugares de esta categoría cerca de ti.'
       }
     }
   };
